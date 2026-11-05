@@ -72,6 +72,12 @@
             android:layout_height="wrap_content"
             android:text="ASK JARVIS"/>
 
+        <Button
+            android:id="@+id/callScreening"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ENABLE CALL ASSISTANT"/>
+
         <TextView
             android:id="@+id/answer"
             android:layout_width="match_parent"
