@@ -9,9 +9,11 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.jarvis.ironman.core.calls.JarvisCallRoleManager
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,8 +29,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var answer: TextView
     private lateinit var apiKey: EditText
     private lateinit var provider: Spinner
+    private lateinit var callScreeningButton: Button
 
     private var tts: TextToSpeech? = null
+    private lateinit var callRoleManager: JarvisCallRoleManager
 
     private val scope =
         CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -36,6 +40,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val prefs by lazy {
         getSharedPreferences("jarvis_settings", MODE_PRIVATE)
     }
+
+    private val callRoleLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            updateCallScreeningStatus()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +57,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         answer = findViewById(R.id.answer)
         apiKey = findViewById(R.id.apiKey)
         provider = findViewById(R.id.provider)
+        callScreeningButton = findViewById(R.id.callScreening)
+
+        callRoleManager = JarvisCallRoleManager(this)
 
         tts = TextToSpeech(this, this)
 
@@ -63,11 +77,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             object : AdapterView.OnItemSelectedListener {
 
                 override fun onNothingSelected(
-                    parent: android.widget.AdapterView<*>?
+                    parent: AdapterView<*>?
                 ) {}
 
                 override fun onItemSelected(
-                    parent: android.widget.AdapterView<*>?,
+                    parent: AdapterView<*>?,
                     view: android.view.View?,
                     position: Int,
                     id: Long
@@ -104,6 +118,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             askJarvis()
         }
 
+        callScreeningButton.setOnClickListener {
+            requestCallScreeningPermission()
+        }
+
+        updateCallScreeningStatus()
+
         if (
             ContextCompat.checkSelfPermission(
                 this,
@@ -115,6 +135,53 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 arrayOf(Manifest.permission.RECORD_AUDIO),
                 101
             )
+        }
+    }
+
+    private fun requestCallScreeningPermission() {
+
+        if (!callRoleManager.isCallScreeningAvailable()) {
+            status.text = "CALL SCREENING NOT AVAILABLE"
+            return
+        }
+
+        if (callRoleManager.isCallScreeningEnabled()) {
+            status.text = "CALL ASSISTANT ALREADY ENABLED"
+            updateCallScreeningStatus()
+            return
+        }
+
+        val permissionIntent =
+            callRoleManager.createPermissionRequest()
+
+        if (permissionIntent == null) {
+            status.text = "CALL PERMISSION REQUEST UNAVAILABLE"
+            return
+        }
+
+        callRoleLauncher.launch(permissionIntent)
+    }
+
+    private fun updateCallScreeningStatus() {
+
+        val enabled = callRoleManager.isCallScreeningEnabled()
+
+        callScreeningButton.text = if (enabled) {
+            "CALL ASSISTANT ENABLED"
+        } else {
+            "ENABLE CALL ASSISTANT"
+        }
+
+        if (enabled) {
+            status.text = "CALL SCREENING PERMISSION ENABLED"
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (::callRoleManager.isInitialized) {
+            updateCallScreeningStatus()
         }
     }
 
@@ -399,9 +466,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onInit(result: Int) {
 
         if (result == TextToSpeech.SUCCESS) {
-
             tts?.language = Locale("hi", "IN")
-
             status.text = "JARVIS SYSTEM READY"
         }
     }
