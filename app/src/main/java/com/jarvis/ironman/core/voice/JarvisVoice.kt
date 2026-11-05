@@ -1,3 +1,4 @@
+
 package com.jarvis.ironman.core.voice
 
 import android.content.Context
@@ -20,15 +21,7 @@ class JarvisVoice(
 
     private var currentLanguage = "hi-IN"
 
-    init {
-        tts = TextToSpeech(context, this)
-
-        if (SpeechRecognizer.isRecognitionAvailable(context)) {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(context)
-            recognizer?.setRecognitionListener(listener)
-        }
-    }
-
+    // Listener ko init se pehle initialize kiya gaya hai.
     private val listener = object : RecognitionListener {
 
         override fun onReadyForSpeech(params: Bundle?) {}
@@ -47,7 +40,9 @@ class JarvisVoice(
 
         override fun onResults(results: Bundle?) {
             val text = results
-                ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.getStringArrayList(
+                    SpeechRecognizer.RESULTS_RECOGNITION
+                )
                 ?.firstOrNull()
 
             if (!text.isNullOrBlank()) {
@@ -60,9 +55,22 @@ class JarvisVoice(
         override fun onEvent(eventType: Int, params: Bundle?) {}
     }
 
+    init {
+        tts = TextToSpeech(context, this)
+
+        if (SpeechRecognizer.isRecognitionAvailable(context)) {
+            recognizer =
+                SpeechRecognizer.createSpeechRecognizer(context)
+
+            recognizer?.setRecognitionListener(listener)
+        }
+    }
+
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts?.language = Locale("hi", "IN")
+        } else {
+            onError("Text to speech initialization failed")
         }
     }
 
@@ -87,6 +95,7 @@ class JarvisVoice(
         }
 
         recognizer?.startListening(intent)
+            ?: onError("Speech recognizer unavailable")
     }
 
     fun speak(message: String) {
