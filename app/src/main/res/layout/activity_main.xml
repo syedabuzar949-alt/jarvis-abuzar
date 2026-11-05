@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#06131C"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="J.A.R.V.I.S"
+            android:textColor="#00E5FF"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="24dp"/>
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SYSTEM READY"
+            android:textColor="#69F0AE"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:padding="16dp"/>
+
+        <Spinner
+            android:id="@+id/provider"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"/>
+
+        <EditText
+            android:id="@+id/apiKey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="AI API Key"
+            android:textColor="#FFFFFF"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/saveKey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SAVE API KEY"/>
+
+        <EditText
+            android:id="@+id/prompt"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:gravity="top"
+            android:hint="Speak or type your command..."
+            android:textColor="#FFFFFF"
+            android:inputType="textMultiLine"/>
+
+        <Button
+            android:id="@+id/listen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MICROPHONE"/>
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ASK JARVIS"/>
+
+        <TextView
+            android:id="@+id/answer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="JARVIS is waiting..."
+            android:textColor="#E0F7FA"
+            android:textSize="17sp"
+            android:padding="20dp"/>
+
+    </LinearLayout>
+</ScrollView>
