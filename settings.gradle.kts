@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "JarvisIronMan"
+rootProject.name = "JarvisAbuzar"
 include(":app")
